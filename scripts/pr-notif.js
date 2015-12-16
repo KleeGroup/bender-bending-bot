@@ -1,10 +1,11 @@
 import Octokat from 'octokat';
 
 const octo = new Octokat();
-const users = new Map();
-users.set('Bernardstanislas', 'stan');
-users.set('pierr', 'pierr');
-users.set('Thomass', 'tom');
+const users = {
+    'Bernardstanislas': 'stan',
+    'pierr': 'pierr',
+    'Thomass': 'tom'
+}
 
 const focusCoreRepo = octo.repos('KleeGroup', 'focus-core');
 const focusComponentsRepo = octo.repos('KleeGroup', 'focus-components');
@@ -27,12 +28,12 @@ module.exports = robot => {
                     let user = null;
                     const url = pulls.reduce((acc, pull) => {
                         if (pull.head.sha === status.sha && pull.assignee) {
-                            user = users.get(pull.assignee.login);
+                            user = users[pull.assignee.login];
                             acc = pull.htmlUrl;
                         }
                         return acc;
                     }, null);
-                    if (user !== null) {
+                    if (user !== undefined) {
                         robot.send({room: user}, `Pull request ${url} state is now ${status.state} !`);
                     }
                 });
