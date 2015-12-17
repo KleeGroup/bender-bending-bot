@@ -4,7 +4,7 @@ const octo = new Octokat();
 const users = {
     'Bernardstanislas': 'stan',
     'pierr': 'pierr',
-    'Thomass': 'tom'
+    'Tommass': 'tom'
 }
 
 const focusCoreRepo = octo.repos('KleeGroup', 'focus-core');
