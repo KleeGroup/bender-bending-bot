@@ -9,6 +9,10 @@ const users = {
 
 const focusCoreRepo = octo.repos('KleeGroup', 'focus-core');
 const focusComponentsRepo = octo.repos('KleeGroup', 'focus-components');
+const focusDemoApp = octo.repos('KleeGroup', 'focus-demo-app');
+const focusFile = octo.repos('KleeGroup', 'focus-file');
+const focusComments = octo.repos('KleeGroup', 'focus-comments');
+const focusNotifications = octo.repos('KleeGroup', 'focus-notifications');
 
 module.exports = robot => {
     robot.on('github-repo-event', event => {
@@ -22,6 +26,18 @@ module.exports = robot => {
                 case 'KleeGroup/focus-components':
                     repo = focusComponentsRepo;
                     break;
+                case 'KleeGroup/focus-demo-app':
+                    repo = focusDemoApp;
+                    break;
+                case 'KleeGroup/focus-file':
+                    repo = focusFile;
+                    break;
+                case 'KleeGroup/focus-comments':
+                    repo = focusComments;
+                    break;
+                case 'KleeGroup/focus-notifications':
+                    repo = focusNotifications;
+                    break;
             }
             if (repo !== null) {
                 repo.pulls.fetch({state: 'open'}).then(pulls => {
@@ -33,8 +49,8 @@ module.exports = robot => {
                         }
                         return acc;
                     }, null);
-                    if (user !== undefined) {
-                        robot.send({room: user}, `Pull request ${url} state is now ${status.state} !`);
+                    if (user !== undefined && status.state === 'success') {
+                        robot.send({room: user}, `La pull request ${url} a buildé et tu es assigné en reviewer.`);
                     }
                 });
             }
