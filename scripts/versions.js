@@ -18,7 +18,30 @@ const sendVersion = response => repo => {
 }
 
 module.exports = robot => {
-    robot.respond(/versions/i, response => {
-        [focusCoreRepo, focusComponentsRepo, focusDemoApp, focusFile, focusComments, focusNotifications].map(sendVersion(response));
+    robot.respond(/versions? ?(.*)/i, response => {
+        const repo = response.match[1];
+        switch (repo) {
+            case 'focus-core':
+                sendVersion(focusCoreRepo);
+                break;
+            case 'focus-components':
+                sendVersion(focusComponentsRepo);
+                break;
+            case 'focus-demo':
+                sendVersion(focusDemoApp);
+                break;
+            case 'focus-file':
+                sendVersion(focusFile);
+                break;
+            case 'focus-comments':
+                sendVersion(focusComments);
+                break;
+            case 'focus-notifications':
+                sendVersion(focusNotifications);
+                break;
+            default:
+                [focusCoreRepo, focusComponentsRepo, focusDemoApp, focusFile, focusComments, focusNotifications].map(sendVersion(response));
+                break;
+        }
     });
 };
