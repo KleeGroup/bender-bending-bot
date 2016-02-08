@@ -1,3 +1,16 @@
+// Description:
+//   Automaticaly release Focus projects
+//
+// Dependencies:
+//   <none>
+//
+// Commands:
+//   hubot versions : list all Focus projects versions
+//   hubot version <project> : give the provided project version
+//
+// Author:
+//   focus@kleegroup.com
+
 import {sendVersion, sendAllVersions} from '../utils/version';
 import {repoSwitcher} from '../utils/repos';
 

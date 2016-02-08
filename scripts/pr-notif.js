@@ -23,7 +23,7 @@ module.exports = robot => {
                         return acc;
                     }, null);
                     if (user !== undefined && status.state === 'success') {
-                        robot.send({room: user}, `${user} ! ${url} a buildé et attend que tu la merge ! Merci :sunglasses:`);
+                        robot.send({room: user}, `:tada: ${url} a buildé et attend que tu la merge ! Merci :sunglasses:`);
                     }
                 });
             }

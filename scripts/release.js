@@ -1,3 +1,21 @@
+// Description:
+//   Automaticaly release Focus projects
+//
+// Dependencies:
+//   "giphy-api": "^1.1.14",
+//   "octokat": "^0.4.15"
+//
+// Configuration:
+//   GITHUB_BENDER_TOKEN
+//
+// Commands:
+//   hubot release <project> <version> - create the release pull request on the selected project
+//   hubot release <project> - gives the last known version for the provided project, but does not create the pull request
+//   hubot release - same as hubot versions
+//
+// Author:
+//   focus@kleegroup.com
+
 import {sendVersion, sendAllVersions} from '../utils/version';
 import {repoSwitcher} from '../utils/repos';
 import 'babel-polyfill';
@@ -11,7 +29,7 @@ const users = {
 }
 
 const unknownProjectResponse = (project, response) => {
-    response.send(`Je ne connais pas le projet *${project}*. Voilà la liste des projets que je connais :`);
+    response.send(`:flushed: je ne connais pas le projet *${project}*. Voilà la liste des projets que je connais :`);
     sendAllVersions(response);
 }
 
@@ -24,11 +42,11 @@ module.exports = robot => {
     robot.respond(/release ?([a-z-]*) ?(.*)/i, response => {
         const [project, version] = [response.match[1], response.match[2]];
         if (!project) {
-            response.send('Tu ne m\'as pas dit quel projet releaser ! Voilà la liste des projets que je connais :');
+            response.send(':stuck_out_tongue_winking_eye: tu ne m\'as pas dit quel projet releaser ! Voilà la liste des projets que je connais :');
             sendAllVersions.call(this, response);
         } else if (!version) {
             repoSwitcher(project, repo => {
-                response.send(`Tu ne m'as pas donné de version à releaser, voilà la dernière version de *${project}*:`);
+                response.send(`:neutral_face: tu ne m'as pas donné de version à releaser, voilà la dernière version de *${project}*:`);
                 sendVersion(response)(repo);
             }, () => {
                 unknownProjectResponse(project, response);
@@ -58,9 +76,9 @@ module.exports = robot => {
                         base: 'develop'
                     });
                     await repo.issues(number).update({assignee: users[response.envelope.user.name]});
-                    response.send('*Ok* la release est lancée, je te notifierai quand la pull request aura buildé.');
+                    response.send(':tada: la release est lancée, je te notifierai quand la pull request aura buildé. :tada:');
                 } catch (error) {
-                    response.send(`*Attention*, une erreur s'est produite ! Je ne vais pas tout péter, je m'arrête là.`);
+                    response.send(`:warning: une erreur s'est produite ! Je ne vais pas tout péter, je m'arrête là.`);
                     response.send(`> ${error.toString()}`);
                 }
             }, () => {
