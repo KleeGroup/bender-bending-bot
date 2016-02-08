@@ -50,7 +50,7 @@ module.exports = robot => {
                         return acc;
                     }, null);
                     if (user !== undefined && status.state === 'success') {
-                        robot.send({room: user}, `La pull request ${url} a buildé et tu es assigné en reviewer.`);
+                        robot.send({room: user}, `${user} ! ${url} a buildé et attend que tu la merge ! Merci :sunglasses:`);
                     }
                 });
             }
