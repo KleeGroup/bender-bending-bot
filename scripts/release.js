@@ -1,5 +1,6 @@
 import {sendVersion, sendAllVersions} from '../utils/version';
 import {repoSwitcher} from '../utils/repos';
+import 'babel-polyfill';
 
 const giphy = require('giphy-api')('dc6zaTOxFJmzC');
 
@@ -33,50 +34,48 @@ module.exports = robot => {
                 unknownProjectResponse(project, response);
             });
         } else {
-            repoSwitcher(project, repo => {
-                repo.git.refs.heads('develop').fetch()
-                .then(({object: {sha}}) => {
-                    repo.git.refs.create({
-                        ref: `refs/heads/version-${version}`,
-                        sha
-                    })
-                    .then(() => {
-                        repo.contents('package.json').read()
-                        .then(rawFile => {
-                            const modifiedFile = rawFile.replace(/"version": (.*),/, `"version": "${version}",`);
-                            repo.contents('package.json').fetch()
-                            .then(({sha: fileSha}) => {
-                                repo.contents('package.json').add({
-                                    message: `[version] ${version}`,
-                                    content: base64encode(modifiedFile),
-                                    branch: `version-${version}`,
-                                    sha: fileSha
-                                })
-                                .then(() => {
-                                    giphy.random('excited')
-                                    .then(({data: {image_url}}) => {
-                                        repo.pulls.create({
-                                            title: `[version] ${version}`,
-                                            body: `![](${image_url})`,
-                                            head: `version-${version}`,
-                                            base: 'develop'
-                                        })
-                                        .then(({number}) => {
-                                            repo.issues(number).update({assignee: users[response.envelope.user.name]})
-                                            .catch(error => console.error(error));
-                                        })
+            repoSwitcher(project, async repo => {
+                const {object: {sha}} = await repo.git.refs.heads('develop').fetch()
+                repo.git.refs.create({
+                    ref: `refs/heads/version-${version}`,
+                    sha
+                })
+                .then(() => {
+                    repo.contents('package.json').read()
+                    .then(rawFile => {
+                        const modifiedFile = rawFile.replace(/"version": (.*),/, `"version": "${version}",`);
+                        repo.contents('package.json').fetch()
+                        .then(({sha: fileSha}) => {
+                            repo.contents('package.json').add({
+                                message: `[version] ${version}`,
+                                content: base64encode(modifiedFile),
+                                branch: `version-${version}`,
+                                sha: fileSha
+                            })
+                            .then(() => {
+                                giphy.random('excited')
+                                .then(({data: {image_url}}) => {
+                                    repo.pulls.create({
+                                        title: `[version] ${version}`,
+                                        body: `![](${image_url})`,
+                                        head: `version-${version}`,
+                                        base: 'develop'
+                                    })
+                                    .then(({number}) => {
+                                        repo.issues(number).update({assignee: users[response.envelope.user.name]})
                                         .catch(error => console.error(error));
                                     })
                                     .catch(error => console.error(error));
                                 })
+                                .catch(error => console.error(error));
                             })
                         })
                     })
-                    .catch(error => {
-                        response.send(`*Attention*, la branche *version-${version}* existe déjà ! Je ne vais pas tout péter, je m'arrête là.`);
-                    });
-                    response.send('Ok j\'ai tout compris, je vais faire la release quand je saurai la faire.');
+                })
+                .catch(error => {
+                    response.send(`*Attention*, la branche *version-${version}* existe déjà ! Je ne vais pas tout péter, je m'arrête là.`);
                 });
+                response.send('Ok j\'ai tout compris, je vais faire la release quand je saurai la faire.');
             }, () => {
                 unknownProjectResponse(project, response);
             });
