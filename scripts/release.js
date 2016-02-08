@@ -35,47 +35,34 @@ module.exports = robot => {
             });
         } else {
             repoSwitcher(project, async repo => {
-                const {object: {sha}} = await repo.git.refs.heads('develop').fetch()
-                repo.git.refs.create({
-                    ref: `refs/heads/version-${version}`,
-                    sha
-                })
-                .then(() => {
-                    repo.contents('package.json').read()
-                    .then(rawFile => {
-                        const modifiedFile = rawFile.replace(/"version": (.*),/, `"version": "${version}",`);
-                        repo.contents('package.json').fetch()
-                        .then(({sha: fileSha}) => {
-                            repo.contents('package.json').add({
-                                message: `[version] ${version}`,
-                                content: base64encode(modifiedFile),
-                                branch: `version-${version}`,
-                                sha: fileSha
-                            })
-                            .then(() => {
-                                giphy.random('excited')
-                                .then(({data: {image_url}}) => {
-                                    repo.pulls.create({
-                                        title: `[version] ${version}`,
-                                        body: `![](${image_url})`,
-                                        head: `version-${version}`,
-                                        base: 'develop'
-                                    })
-                                    .then(({number}) => {
-                                        repo.issues(number).update({assignee: users[response.envelope.user.name]})
-                                        .catch(error => console.error(error));
-                                    })
-                                    .catch(error => console.error(error));
-                                })
-                                .catch(error => console.error(error));
-                            })
-                        })
-                    })
-                })
-                .catch(error => {
-                    response.send(`*Attention*, la branche *version-${version}* existe déjà ! Je ne vais pas tout péter, je m'arrête là.`);
-                });
-                response.send('Ok j\'ai tout compris, je vais faire la release quand je saurai la faire.');
+                try {
+                    const {object: {sha}} = await repo.git.refs.heads('develop').fetch()
+                    await repo.git.refs.create({
+                        ref: `refs/heads/version-${version}`,
+                        sha
+                    });
+                    const rawFile = await repo.contents('package.json').read();
+                    const modifiedFile = rawFile.replace(/"version": (.*),/, `"version": "${version}",`);
+                    const {sha: fileSha} = await repo.contents('package.json').fetch();
+                    await repo.contents('package.json').add({
+                        message: `[version] ${version}`,
+                        content: base64encode(modifiedFile),
+                        branch: `version-${version}`,
+                        sha: fileSha
+                    });
+                    const {data: {image_url}} = await giphy.random('excited');
+                    const {number} = await repo.pulls.create({
+                        title: `[version] ${version}`,
+                        body: `![](${image_url})`,
+                        head: `version-${version}`,
+                        base: 'develop'
+                    });
+                    await repo.issues(number).update({assignee: users[response.envelope.user.name]});
+                    response.send('*Ok* la release est lancée, je te notifierai quand la pull request aura buildé.');
+                } catch (error) {
+                    response.send(`*Attention*, une erreur s'est produite ! Je ne vais pas tout péter, je m'arrête là.`);
+                    response.send(`> ${error.toString()}`);
+                }
             }, () => {
                 unknownProjectResponse(project, response);
             });
