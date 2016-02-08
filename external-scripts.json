@@ -3,6 +3,7 @@
   "hubot-diagnostics",
   "hubot-help",
   "hubot-pugme",
+  "hubot-mailchimp",
   "hubot-maps",
   "hubot-redis-brain",
   "hubot-rules",

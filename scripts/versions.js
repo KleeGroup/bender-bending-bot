@@ -9,12 +9,16 @@ const focusFile = octo.repos('KleeGroup', 'focus-file');
 const focusComments = octo.repos('KleeGroup', 'focus-comments');
 const focusNotifications = octo.repos('KleeGroup', 'focus-notifications');
 
+const sendVersion = response => repo => {
+    repo.contents('package.json').read()
+    .then(raw => JSON.parse(raw))
+    .then(({name, version}) => {
+        response.send(`*${name}:* ${version}`);
+    });
+}
+
 module.exports = robot => {
     robot.respond(/versions/i, response => {
-        focusCoreRepo.contents('package.json').fetch()
-        .then(function({content}) {
-            const parsedContent = JSON.parse(content);
-            response.send(`Focus Core : ${parsedContent.version}`);
-        });
+        [focusCoreRepo, focusComponentsRepo, focusDemoApp, focusFile, focusComments, focusNotifications].map(sendVersion(response));
     });
 };
