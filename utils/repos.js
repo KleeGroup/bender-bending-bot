@@ -10,6 +10,9 @@ export const focusDemoApp = octo.repos('KleeGroup', 'focus-demo-app');
 export const focusFile = octo.repos('KleeGroup', 'focus-file');
 export const focusComments = octo.repos('KleeGroup', 'focus-comments');
 export const focusNotifications = octo.repos('KleeGroup', 'focus-notifications');
+export const focusDocs = octo.repos('Kleegroup', 'focus-docs');
+export const focusRedux = octo.repos('get-focus', 'focus-redux');
+
 
 export const repoSwitcher = (query, repoCallback, defaultCallback) => {
     switch (query) {
@@ -30,6 +33,12 @@ export const repoSwitcher = (query, repoCallback, defaultCallback) => {
             break;
         case 'focus-notifications':
             repoCallback(focusNotifications);
+            break;
+        case 'focus-redux':
+            repoCallback(focusRedux);
+            break;
+        case 'focus-docs':
+            repoCallback(focusDocs);
             break;
         default:
             defaultCallback();
